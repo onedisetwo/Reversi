@@ -14,8 +14,67 @@
 
 using namespace std;
 
-vector<vector<short> > board, board2;
 bool debugx;
+
+class board{
+public:
+    vector<vector<short> > board;
+    void start(){ //Изменение размера и заполнение до стартовой позиции
+        board.resize(9);
+        for(int i=0;i<9;i++){
+            board[i].resize(9);
+        }
+        for(int i=0;i<9;i++){
+            for(int k=0;k<9;k++){
+                board[i][k]=0;
+                if(i==4 & k==4 || i==5 & k==5){
+                    board[i][k]=1;
+                }
+                if(i==5 & k==4 || i==4 & k==5){
+                    board[i][k]=2;
+                }
+            }
+        }
+    }
+    void input(){ //Ввод доски
+        for(int i=1;i<9;i++){
+            string s;
+            cin>>s;
+            for(int k=1;k<9;k++){
+                board[k][9-i]=(int)(s[k-1])-48;
+            }
+        }
+    }
+    void print(){ //Напечатать доску
+        cout<<endl;
+        for(int i=1;i<9;i++){
+            for(int k=1;k<9;k++){
+                cout<<board[k][9-i];
+            }
+            cout<<endl;
+        }
+    }
+    vector<short> wincheck_3(){ //Проверка выигрыша: победитель, кол-во черных, кол-во белых
+        vector<short> v(3,0);
+        for(int i=1;i<9;i++){
+            for(int k=1;k<9;k++){
+                v[board[i][k]]++;
+            }
+        }
+        if(v[1]>v[2])
+            v[0]=1;
+        if(v[2]>v[1])
+            v[0]=2;
+        if(v[1]==v[2])
+            v[0]=0;
+        return v;
+    }
+    short wincheck_p(){ //Проверка выигрыщша: победитель
+        return wincheck_3()[0];
+    }
+};
+
+board b1,b2;
 
 class coord{
     public:
@@ -27,10 +86,10 @@ class coord{
         y=(int)(s[1])-48;
     }
     void move_make(short player){
-        board[x][y]=player;
+        b1.board[x][y]=player;
     }
     void move_undo(){
-        board[x][y]=0;
+        b1.board[x][y]=0;
     }
     void set(short a, short b){
         x=a;
@@ -52,149 +111,101 @@ short difplayer(short player){ //Смена игрока
         return 1;
 }
 
-void board_start(){ //Изменение размера и заполнение до стартовой позиции
-    board.resize(9);
-    for(int i=0;i<9;i++){
-        board[i].resize(9);
-    }
-    for(int i=0;i<9;i++){
-        for(int k=0;k<9;k++){
-            board[i][k]=0;
-            if(i==4 & k==4 || i==5 & k==5){
-                board[i][k]=1;
-            }
-            if(i==5 & k==4 || i==4 & k==5){
-                board[i][k]=2;
-            }
-        }
-    }
-}
-
-void board_input(){ //Ввод доски
-    for(int i=1;i<9;i++){
-        string s;
-        cin>>s;
-        for(int k=1;k<9;k++){
-            board[k][9-i]=(int)(s[k-1])-48;
-        }
-    }
-}
-
-void board2_input(){ //Ввод доски
-    for(int i=1;i<9;i++){
-        string s;
-        cin>>s;
-        for(int k=1;k<9;k++){
-            board2[9-i][k]=(int)(s[k-1])-48;
-        }
-    }
-}
-
-void board_print(){ //Напечатать доску
-    cout<<endl;
-    for(int i=1;i<9;i++){
-        for(int k=1;k<9;k++){
-            cout<<board[k][9-i];
-        }
-        cout<<endl;
-    }
-}
-
 vector<bool> vec_move_possibility(short y, short x,short player){ //Возможность хода в клетку и в какой стороне он окажет влияние
     vector<bool> v(8,0);
-    if(board[y][x]!=0)
+    if(b1.board[y][x]!=0)
         return v;
     if(y>0 && x>0)
-    if(v[0]==0 && board[y-1][x-1]==difplayer(player)){
+    if(v[0]==0 && b1.board[y-1][x-1]==difplayer(player)){
         for(int i=2;y-i>0 && x-i>0;i++){
-            if(board[y-i][x-i]==0){
+            if(b1.board[y-i][x-i]==0){
                 break;
             }
-            if(board[y-i][x-i]==player){
+            if(b1.board[y-i][x-i]==player){
                 v[0]=1;
                 break;
             }
         }
     }
     if(y>0)
-    if(v[1]==0 && board[y-1][x]==difplayer(player)){
+    if(v[1]==0 && b1.board[y-1][x]==difplayer(player)){
         for(int i=2;y-i>0;i++){
-            if(board[y-i][x]==0){
+            if(b1.board[y-i][x]==0){
                 break;
             }
-            if(board[y-i][x]==player){
+            if(b1.board[y-i][x]==player){
                 v[1]=1;
                 break;
             }
         }
     }
     if(y>0 && x<8)
-    if(v[2]==0 && board[y-1][x+1]==difplayer(player)){
+    if(v[2]==0 && b1.board[y-1][x+1]==difplayer(player)){
         for(int i=2;y-i>0 && x+i<8;i++){
-            if(board[y-i][x+i]==0){
+            if(b1.board[y-i][x+i]==0){
                 break;
             }
-            if(board[y-i][x+i]==player){
+            if(b1.board[y-i][x+i]==player){
                 v[2]=1;
                 break;
             }
         }
     }
     if(x<8)
-    if(v[3]==0 && board[y][x+1]==difplayer(player)){
+    if(v[3]==0 && b1.board[y][x+1]==difplayer(player)){
         for(int i=2;x+i<8;i++){
-            if(board[y][x+i]==0){
+            if(b1.board[y][x+i]==0){
                 break;
             }
-            if(board[y][x+i]==player){
+            if(b1.board[y][x+i]==player){
                 v[3]=1;
                 break;
             }
         }
     }
     if(y<8 && x<8)
-    if(v[4]==0 && board[y+1][x+1]==difplayer(player)){
+    if(v[4]==0 && b1.board[y+1][x+1]==difplayer(player)){
         for(int i=2;y+i<8 && x+i<8;i++){
-            if(board[y+i][x+i]==0){
+            if(b1.board[y+i][x+i]==0){
                 break;
             }
-            if(board[y+i][x+i]==player){
+            if(b1.board[y+i][x+i]==player){
                 v[4]=1;
                 break;
             }
         }
     }
     if(y<8)
-    if(v[5]==0 && board[y+1][x]==difplayer(player)){
+    if(v[5]==0 && b1.board[y+1][x]==difplayer(player)){
         for(int i=2;y+i<8;i++){
-            if(board[y+i][x]==0){
+            if(b1.board[y+i][x]==0){
                 break;
             }
-            if(board[y+i][x]==player){
+            if(b1.board[y+i][x]==player){
                 v[5]=1;
                 break;
             }
         }
     }
     if(y<8 && x>0)
-    if(v[6]==0 && board[y+1][x-1]==difplayer(player)){
+    if(v[6]==0 && b1.board[y+1][x-1]==difplayer(player)){
         for(int i=2;y+i<8 && x-i>0;i++){
-            if(board[y+i][x-i]==0){
+            if(b1.board[y+i][x-i]==0){
                 break;
             }
-            if(board[y+i][x-i]==player){
+            if(b1.board[y+i][x-i]==player){
                 v[6]=1;
                 break;
             }
         }
     }
     if(x>0)
-    if(v[7]==0 && board[y][x-1]==difplayer(player)){
+    if(v[7]==0 && b1.board[y][x-1]==difplayer(player)){
         for(int i=2;x-i>0;i++){
-            if(board[y][x-i]==0){
+            if(b1.board[y][x-i]==0){
                 break;
             }
-            if(board[y][x-i]==player){
+            if(b1.board[y][x-i]==player){
                 v[7]=1;
                 break;
             }
@@ -224,32 +235,14 @@ vector<coord> move_variants(short player){ //Варианты хода из за
     return v;
 }
 
-vector<short> wincheck_3(){ //Проверка выигрыша: победитель, кол-во черных, кол-во белых
-    vector<short> v(3,0);
-    for(int i=1;i<9;i++){
-        for(int k=1;k<9;k++){
-            v[board[i][k]]++;
-        }
-    }
-    if(v[1]>v[2])
-        v[0]=1;
-    if(v[2]>v[1])
-        v[0]=2;
-    if(v[1]==v[2])
-        v[0]=0;
-    return v;
-}
-
-short wincheck_player(){ //Проверка выигрыщша: победитель
-    return wincheck_3()[0];
-}
+///Задания
 
 void task1(){ //Задание 1
-    board_input();
+    b1.input();
     int s=0;
     for(int i=1;i<9;i++){
         for(int k=1;k<9;k++){
-            if(board[i][k]!=0){
+            if(b1.board[i][k]!=0){
                 s++;
             }
         }
@@ -258,8 +251,8 @@ void task1(){ //Задание 1
 }
 
 void task2(){ //Задание 2
-    board_input();
-    for(auto i:wincheck_3()){
+    b1.input();
+    for(auto i:b1.wincheck_3()){
         cout<<i<<" ";
     }
 }
@@ -267,12 +260,12 @@ void task2(){ //Задание 2
 void task3(){ //Задание 3
     short player;
     cin>>player;
-    board2_input();
+    b1.input();
     /*vector<short> v;
-    board_input();
+    b1.board_input();
     for(int i=1;i<9;i++){
         for(int k=1;k<9;k++){
-            if(board[i][k]!=0){
+            if(b1.board[i][k]!=0){
                 v.push_back();
             }
         }
@@ -280,7 +273,7 @@ void task3(){ //Задание 3
 }
 
 void task5(){ //Задание 5
-    board_input();
+    b1.input();
     short player;
     cin>>player;
     vector<coord> v=move_variants(difplayer(player));
@@ -301,7 +294,7 @@ void task_switch(short task_number){ //Выбор заданий
     case 3:
         task3();
         break;
-    case 5:
+    case 5: //+
         task5();
         break;
     default:
@@ -313,11 +306,13 @@ void task_switch(short task_number){ //Выбор заданий
 int main()
 {
     short task_number,player;
-    board_start();
+    b1.start();
+    b2.start();
+    cout<<"Task number: ";
     cin>>task_number;
     task_switch(task_number);
-    board_input();
-    board_print();
+    b1.input();
+    b1.print();
     /*for(auto i:vec_move_possibility(8,8,1)){
         cout<<i<<" ";
     }*/
