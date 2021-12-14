@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#define debug; cin>>debugx;
 
 /*первая коорд. - буква, вторая цифра. т.е.
 5 - - - - -
@@ -14,17 +13,36 @@
 
 using namespace std;
 
-bool debugx;
+short changePl(short player){ //Смена игрока
+    if(player==1)
+        return 2;
+    else
+        return 1;
+}
+
+class coord{
+    public:
+    short x,y;
+    void input(){
+        string s;
+        cin>>s;
+        x=(int)(s[0])-64;
+        y=(int)(s[1])-48;
+    }
+    void set(short a, short b){
+        x=a;
+        y=b;
+    }
+};
 
 class board{
 public:
     vector<vector<short> > board;
+
     void start(){ //Изменение размера и заполнение до стартовой позиции
         board.resize(9);
         for(int i=0;i<9;i++){
             board[i].resize(9);
-        }
-        for(int i=0;i<9;i++){
             for(int k=0;k<9;k++){
                 board[i][k]=0;
                 if(i==4 & k==4 || i==5 & k==5){
@@ -36,6 +54,7 @@ public:
             }
         }
     }
+
     void input(){ //Ввод доски
         for(int i=1;i<9;i++){
             string s;
@@ -45,6 +64,11 @@ public:
             }
         }
     }
+
+    short get(coord a){ //Получить значение поля доски
+        return board[a.x][a.y];
+    }
+
     void print(){ //Напечатать доску
         cout<<endl;
         for(int i=1;i<9;i++){
@@ -54,6 +78,7 @@ public:
             cout<<endl;
         }
     }
+
     vector<short> wincheck_3(){ //Проверка выигрыша: победитель, кол-во черных, кол-во белых
         vector<short> v(3,0);
         for(int i=1;i<9;i++){
@@ -61,178 +86,179 @@ public:
                 v[board[i][k]]++;
             }
         }
-        if(v[1]>v[2])
-            v[0]=1;
-        if(v[2]>v[1])
-            v[0]=2;
-        if(v[1]==v[2])
-            v[0]=0;
+        if(v[1]==0) return {2,0,v[2]}; //0 - ничья
+        if(v[2]==0) return {1,v[1],0};
+        if(v[0]!=0) return {-1,v[1],v[2]}; //-1 - игра не окончена
+        if(v[1]>v[2]) v[0]=1;
+        if(v[2]>v[1]) v[0]=2;
+        if(v[1]==v[2]) v[0]=0;
         return v;
     }
+
     short wincheck_p(){ //Проверка выигрыщша: победитель
         return wincheck_3()[0];
+    }
+
+    vector<bool> vecIsMovePossible(coord a,short player){ //Возможность хода в клетку и в какой стороне он окажет влияние
+        /*- - - - -
+          - 2 3 4 -
+          - 1 X 5 -
+          - 0 7 6 -
+          - - - - -*/
+        short y=a.x,x=a.y;
+        vector<bool> v(8,0);
+        if(board[y][x]!=0)
+            return v;
+        if(y>0 && x>0)
+        if(v[0]==0 && board[y-1][x-1]==changePl(player)){
+            for(int i=2;y-i>0 && x-i>0;i++){
+                if(board[y-i][x-i]==0){
+                    break;
+                }
+                if(board[y-i][x-i]==player){
+                    v[0]=1;
+                    break;
+                }
+            }
+        }
+        if(y>0)
+        if(v[1]==0 && board[y-1][x]==changePl(player)){
+            for(int i=2;y-i>0;i++){
+                if(board[y-i][x]==0){
+                    break;
+                }
+                if(board[y-i][x]==player){
+                    v[1]=1;
+                    break;
+                }
+            }
+        }
+        if(y>0 && x+1<=8)
+        if(v[2]==0 && board[y-1][x+1]==changePl(player)){
+            for(int i=2;y-i>0 && x+i<=8;i++){
+                if(board[y-i][x+i]==0){
+                    break;
+                }
+                if(board[y-i][x+i]==player){
+                    v[2]=1;
+                    break;
+                }
+            }
+        }
+        if(x+1<=8)
+        if(v[3]==0 && board[y][x+1]==changePl(player)){
+            for(int i=2;x+i<=8;i++){
+                if(board[y][x+i]==0){
+                    break;
+                }
+                if(board[y][x+i]==player){
+                    v[3]=1;
+                    break;
+                }
+            }
+        }
+        if(y+1<=8 && x+1<=8)
+        if(v[4]==0 && board[y+1][x+1]==changePl(player)){
+            for(int i=2;y+i<=8 && x+i<=8;i++){
+                if(board[y+i][x+i]==0){
+                    break;
+                }
+                if(board[y+i][x+i]==player){
+                    v[4]=1;
+                    break;
+                }
+            }
+        }
+        if(y+1<=8)
+        if(v[5]==0 && board[y+1][x]==changePl(player)){
+            for(int i=2;y+i<=8;i++){
+                //cout<<board[y+i][x];
+                if(board[y+i][x]==0){
+                    break;
+                }
+                if(board[y+i][x]==player){
+                    v[5]=1;
+                    break;
+                }
+            }
+        }
+        if(y+1<=8 && x>0)
+        if(v[6]==0 && board[y+1][x-1]==changePl(player)){
+            for(int i=2;y+i<=8 && x-i>0;i++){
+                if(board[y+i][x-i]==0){
+                    break;
+                }
+                if(board[y+i][x-i]==player){
+                    v[6]=1;
+                    break;
+                }
+            }
+        }
+        if(x>0)
+        if(v[7]==0 && board[y][x-1]==changePl(player)){
+            for(int i=2;x-i>0;i++){
+                if(board[y][x-i]==0){
+                    break;
+                }
+                if(board[y][x-i]==player){
+                    v[7]=1;
+                    break;
+                }
+            }
+        }
+        return v;
+    }
+
+    bool isMovePossible(coord c,short player){ //Можно ли сделать ход в данную клетку
+        vector<bool> v=vecIsMovePossible(c,player);
+        for(auto i:v){
+            if(i==true)
+                return true;
+        }
+        return false;
+    }
+
+    bool ksgchanger(coord a,short player,coord da){ //Вспомогательная функция для change(...)
+        if(board[a.x][a.y]!=player){
+            board[a.x][a.y]=player;
+            ksgchanger({a.x+da.x,a.y+da.y},player,da);
+        }
+        if(board[a.x][a.y]==player)
+            return 0;
+    }
+
+    void change(coord a,short player){ //Изменение доски после хода
+        vector<bool> v=vecIsMovePossible(a,player);
+        vector<coord> cov={{-1,-1},{-1,0},{-1,1},{0,1},{1,1},{1,0},{1,-1},{0,-1}};
+        for(int i=0;i<8;i++){
+            if(v[i]!=0){
+                ksgchanger(a,player,cov[i]);
+                board[a.x][a.y]=changePl(player);
+            }
+        }
+        board[a.x][a.y]=player;
+    }
+
+    vector<coord> moveVariants(short player){ //Варианты хода из заданного положения
+        vector<coord> v;
+        for(short i=1;i<9;i++){
+            for(short k=1;k<9;k++){
+                if(isMovePossible({i,k},player)==true){
+                    v.push_back({i,k});
+                }
+            }
+        }
+        return v;
     }
 };
 
 board b1,b2;
 
-class coord{
-    public:
-    short x,y;
-    void input(){
-        string s;
-        cin>>s;
-        x=(int)(s[0])-64;
-        y=(int)(s[1])-48;
-    }
-    void move_make(short player){
-        b1.board[x][y]=player;
-    }
-    void move_undo(){
-        b1.board[x][y]=0;
-    }
-    void set(short a, short b){
-        x=a;
-        y=b;
-    }
-};
-
-string ch_s(coord a){
-    string s="00";
-    s[0]=(char)(a.x+64);
-    s[1]=(char)(a.y+48);
+string toStr(coord a){ //Перевод координат в запись #A1
+    string s;
+    s+=(char)(a.x+64);
+    s+=(char)(a.y+48);
     return s;
-}
-
-short difplayer(short player){ //Смена игрока
-    if(player==1)
-        return 2;
-    else
-        return 1;
-}
-
-vector<bool> vec_move_possibility(short y, short x,short player){ //Возможность хода в клетку и в какой стороне он окажет влияние
-    vector<bool> v(8,0);
-    if(b1.board[y][x]!=0)
-        return v;
-    if(y>0 && x>0)
-    if(v[0]==0 && b1.board[y-1][x-1]==difplayer(player)){
-        for(int i=2;y-i>0 && x-i>0;i++){
-            if(b1.board[y-i][x-i]==0){
-                break;
-            }
-            if(b1.board[y-i][x-i]==player){
-                v[0]=1;
-                break;
-            }
-        }
-    }
-    if(y>0)
-    if(v[1]==0 && b1.board[y-1][x]==difplayer(player)){
-        for(int i=2;y-i>0;i++){
-            if(b1.board[y-i][x]==0){
-                break;
-            }
-            if(b1.board[y-i][x]==player){
-                v[1]=1;
-                break;
-            }
-        }
-    }
-    if(y>0 && x<8)
-    if(v[2]==0 && b1.board[y-1][x+1]==difplayer(player)){
-        for(int i=2;y-i>0 && x+i<8;i++){
-            if(b1.board[y-i][x+i]==0){
-                break;
-            }
-            if(b1.board[y-i][x+i]==player){
-                v[2]=1;
-                break;
-            }
-        }
-    }
-    if(x<8)
-    if(v[3]==0 && b1.board[y][x+1]==difplayer(player)){
-        for(int i=2;x+i<8;i++){
-            if(b1.board[y][x+i]==0){
-                break;
-            }
-            if(b1.board[y][x+i]==player){
-                v[3]=1;
-                break;
-            }
-        }
-    }
-    if(y<8 && x<8)
-    if(v[4]==0 && b1.board[y+1][x+1]==difplayer(player)){
-        for(int i=2;y+i<8 && x+i<8;i++){
-            if(b1.board[y+i][x+i]==0){
-                break;
-            }
-            if(b1.board[y+i][x+i]==player){
-                v[4]=1;
-                break;
-            }
-        }
-    }
-    if(y<8)
-    if(v[5]==0 && b1.board[y+1][x]==difplayer(player)){
-        for(int i=2;y+i<8;i++){
-            if(b1.board[y+i][x]==0){
-                break;
-            }
-            if(b1.board[y+i][x]==player){
-                v[5]=1;
-                break;
-            }
-        }
-    }
-    if(y<8 && x>0)
-    if(v[6]==0 && b1.board[y+1][x-1]==difplayer(player)){
-        for(int i=2;y+i<8 && x-i>0;i++){
-            if(b1.board[y+i][x-i]==0){
-                break;
-            }
-            if(b1.board[y+i][x-i]==player){
-                v[6]=1;
-                break;
-            }
-        }
-    }
-    if(x>0)
-    if(v[7]==0 && b1.board[y][x-1]==difplayer(player)){
-        for(int i=2;x-i>0;i++){
-            if(b1.board[y][x-i]==0){
-                break;
-            }
-            if(b1.board[y][x-i]==player){
-                v[7]=1;
-                break;
-            }
-        }
-    }
-    return v;
-}
-
-bool bool_move_possibility(short x, short y,short player){ //Можно ли сделать ход в данную клетку
-    vector<bool> v=vec_move_possibility(x,y,player);
-    for(auto i:v){
-        if(i==true)
-            return true;
-    }
-    return false;
-}
-
-vector<coord> move_variants(short player){ //Варианты хода из заданного положения
-    vector<coord> v;
-    for(short i=1;i<9;i++){
-        for(short k=1;k<9;k++){
-            if(bool_move_possibility(i,k,player)==true){
-                v.push_back({i,k});
-            }
-        }
-    }
-    return v;
 }
 
 ///Задания
@@ -259,28 +285,96 @@ void task2(){ //Задание 2
 
 void task3(){ //Задание 3
     short player;
-    cin>>player;
     b1.input();
-    /*vector<short> v;
-    b1.board_input();
+    cin>>player;
+    b2.input();
+    cin>>player;
+    coord c={0,0};
     for(int i=1;i<9;i++){
         for(int k=1;k<9;k++){
-            if(b1.board[i][k]!=0){
-                v.push_back();
+            if(b1.board[i][k]==0 && b2.board[i][k]!=0){
+                c.set(i,k);
+                i=9;
+                break;
             }
         }
-    }*/
+    }
+    if(c.x==0){
+        cout<<0;
+        return  ;
+    }
+    b1.change(c,player);
+    if(b1.board==b2.board){
+        cout<<toStr(c);
+    }
+    else
+        cout<<0;
+}
+
+void task4(){ //Задание 4
+    coord c;
+    short player;
+    b1.input();
+    cin>>player;
+    c.input();
+    if(b1.isMovePossible(c,changePl(player))!=0){
+        player=changePl(player);
+        b1.change(c,player);
+    }
+    b1.print();
+    cout<<player;
 }
 
 void task5(){ //Задание 5
     b1.input();
     short player;
     cin>>player;
-    vector<coord> v=move_variants(difplayer(player));
-    cout<<difplayer(player)<<endl<<v.size()<<endl;
+    vector<coord> v=b1.moveVariants(changePl(player));
+    cout<<changePl(player)<<endl<<v.size()<<endl;
     for(auto i:v){
-        cout<<ch_s(i)<<" ";
+        cout<<toStr(i)<<" ";
     }
+}
+
+void task6(){ //Задание 6
+    b1.input();
+    short player;
+    vector<coord> v;
+    int p=-1;
+    cin>>player;
+    for(auto i:b1.moveVariants(changePl(player))){
+        if(b1.isMovePossible(i,changePl(player))==0){
+            continue;
+        }
+        board b=b1;
+        b.change(i,changePl(player));
+        if(b.wincheck_p()==changePl(player)){
+            p=b.wincheck_p();
+            v.push_back(i);
+        }
+    }
+    if(v.size()==0){
+        player=changePl(player);
+        for(auto i:b1.moveVariants(changePl(player))){
+            if(b1.isMovePossible(i,changePl(player))==0){
+                continue;
+            }
+            board b=b1;
+            b.change(i,changePl(player));
+            if(b.wincheck_p()==changePl(player)){
+                p=b.wincheck_p();
+                v.push_back(i);
+            }
+        }
+    }
+    if(p>0){
+        cout<<p<<endl;
+        for(auto i:v){
+            cout<<toStr(i)<<" ";
+        }
+    }
+    else
+        cout<<0;
 }
 
 void task_switch(short task_number){ //Выбор заданий
@@ -291,11 +385,17 @@ void task_switch(short task_number){ //Выбор заданий
     case 2: //+
         task2();
         break;
-    case 3:
+    case 3: //+
         task3();
+        break;
+    case 4: //+
+        task4();
         break;
     case 5: //+
         task5();
+        break;
+    case 6: //+
+        task6();
         break;
     default:
         cout<<"Not yet";
@@ -311,9 +411,4 @@ int main()
     cout<<"Task number: ";
     cin>>task_number;
     task_switch(task_number);
-    b1.input();
-    b1.print();
-    /*for(auto i:vec_move_possibility(8,8,1)){
-        cout<<i<<" ";
-    }*/
 }
