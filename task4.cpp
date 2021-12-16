@@ -8,7 +8,7 @@ using namespace std;
 ifstream fin;
 ofstream fout;
 
-short changePl(short player){ //Смена игрока
+short changePl(short player){ //РЎРјРµРЅР° РёРіСЂРѕРєР°
     if(player==1)
         return 2;
     else
@@ -34,7 +34,7 @@ class board{
 public:
     vector<vector<short> > board;
 
-    //Изменение размера и заполнение до стартовой позиции
+    //РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° Рё Р·Р°РїРѕР»РЅРµРЅРёРµ РґРѕ СЃС‚Р°СЂС‚РѕРІРѕР№ РїРѕР·РёС†РёРё
     void start(){
         board.resize(9);
         for(int i=0;i<9;i++){
@@ -51,7 +51,7 @@ public:
         }
     }
 
-    //Ввод доски
+    //Р’РІРѕРґ РґРѕСЃРєРё
     void input(){
         for(int i=1;i<9;i++){
             string s;
@@ -62,12 +62,12 @@ public:
         }
     }
 
-    //Получить значение поля доски
+    //РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЏ РґРѕСЃРєРё
     short get(coord a){
         return board[a.x][a.y];
     }
 
-    //Напечатать доску
+    //РќР°РїРµС‡Р°С‚Р°С‚СЊ РґРѕСЃРєСѓ
     void print(){
         for(int i=1;i<9;i++){
             for(int k=1;k<9;k++){
@@ -77,7 +77,7 @@ public:
         }
     }
 
-    //Проверка выигрыша: победитель, кол-во черных, кол-во белых
+    //РџСЂРѕРІРµСЂРєР° РІС‹РёРіСЂС‹С€Р°: РїРѕР±РµРґРёС‚РµР»СЊ, РєРѕР»-РІРѕ С‡РµСЂРЅС‹С…, РєРѕР»-РІРѕ Р±РµР»С‹С…
     vector<short> wincheck_3(){
         vector<short> v(3,0);
         for(int i=1;i<9;i++){
@@ -85,21 +85,21 @@ public:
                 v[board[i][k]]++;
             }
         }
-        if(v[1]==0) return {2,0,v[2]}; //0 - ничья
+        if(v[1]==0) return {2,0,v[2]}; //0 - РЅРёС‡СЊСЏ
         if(v[2]==0) return {1,v[1],0};
-        if(v[0]!=0) return {-1,v[1],v[2]}; //-1 - игра не окончена
+        if(v[0]!=0) return {-1,v[1],v[2]}; //-1 - РёРіСЂР° РЅРµ РѕРєРѕРЅС‡РµРЅР°
         if(v[1]>v[2]) v[0]=1;
         if(v[2]>v[1]) v[0]=2;
         if(v[1]==v[2]) v[0]=0;
         return v;
     }
 
-    //Проверка выигрыщша: победитель
+    //РџСЂРѕРІРµСЂРєР° РІС‹РёРіСЂС‹С‰С€Р°: РїРѕР±РµРґРёС‚РµР»СЊ
     short wincheck_p(){
         return wincheck_3()[0];
     }
 
-    //Вспомогательная функция для vecIsMovePossible(...)
+    //Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ vecIsMovePossible(...)
     bool possibility(coord a, short y, short x, short player){
         if(get({y+a.x,x+a.y})!=changePl(player))
             return 0;
@@ -113,7 +113,7 @@ public:
         }
     }
 
-    //Возможность хода в клетку и в какой стороне он окажет влияние
+    //Р’РѕР·РјРѕР¶РЅРѕСЃС‚СЊ С…РѕРґР° РІ РєР»РµС‚РєСѓ Рё РІ РєР°РєРѕР№ СЃС‚РѕСЂРѕРЅРµ РѕРЅ РѕРєР°Р¶РµС‚ РІР»РёСЏРЅРёРµ
     vector<bool> vecIsMovePossible(coord a,short player){
         /*- - - - -
           - 2 3 4 -
@@ -143,7 +143,7 @@ public:
         return v;
     }
 
-    //Можно ли сделать ход в данную клетку
+    //РњРѕР¶РЅРѕ Р»Рё СЃРґРµР»Р°С‚СЊ С…РѕРґ РІ РґР°РЅРЅСѓСЋ РєР»РµС‚РєСѓ
     bool isMovePossible(coord c,short player){
         vector<bool> v=vecIsMovePossible(c,player);
         for(auto i:v){
@@ -153,7 +153,7 @@ public:
         return false;
     }
 
-    //Вспомогательная функция для change(...)
+    //Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ change(...)
     bool ksgchanger(coord a,short player,coord da){
         if(board[a.x][a.y]!=player){
             board[a.x][a.y]=player;
@@ -163,7 +163,7 @@ public:
             return 0;
     }
 
-    //Изменение доски после хода
+    //РР·РјРµРЅРµРЅРёРµ РґРѕСЃРєРё РїРѕСЃР»Рµ С…РѕРґР°
     void change(coord a,short player){
         if(get(a)!=0)
             return  ;
@@ -178,7 +178,7 @@ public:
         board[a.x][a.y]=player;
     }
 
-    //Варианты хода из заданного положения
+    //Р’Р°СЂРёР°РЅС‚С‹ С…РѕРґР° РёР· Р·Р°РґР°РЅРЅРѕРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ
     vector<coord> moveVariants(short player){
         vector<coord> v;
         for(short i=1;i<9;i++){
@@ -194,7 +194,7 @@ public:
 
 board b1;
 
-//Перевод координат в запись #A1
+//РџРµСЂРµРІРѕРґ РєРѕРѕСЂРґРёРЅР°С‚ РІ Р·Р°РїРёСЃСЊ #A1
 string toStr(coord a){
     string s;
     s+=(char)(a.x+64);
@@ -202,9 +202,9 @@ string toStr(coord a){
     return s;
 }
 
-///Задания
+///Р—Р°РґР°РЅРёСЏ
 
-void task4(){ //Задание 4
+void task4(){ //Р—Р°РґР°РЅРёРµ 4
     coord c;
     short player;
     b1.input();
